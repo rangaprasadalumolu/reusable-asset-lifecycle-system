@@ -1,0 +1,7 @@
+asset_type_id,type_code,description,return_sla_days,loss_threshold_days,deposit_amount,repair_sla_days,active
+AT-001,PALLET,Wooden pallet,21,14,2500,30,1
+AT-002,PLASTIC_CRATE,Reusable plastic crate,14,10,900,21,1
+AT-003,IBC_TOTE,Intermediate bulk container,30,21,12000,45,1
+AT-004,ROLL_CAGE,Roll cage,21,14,6500,30,1
+AT-005,DOLLY,Transport dolly,18,12,3200,30,1
+AT-006,THERMAL_BOX,Insulated thermal box,10,7,1800,14,1

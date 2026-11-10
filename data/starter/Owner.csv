@@ -1,0 +1,6 @@
+owner_id,owner_name,owner_type,active
+OWN-0001,Northstar Packaging,SUPPLIER,1
+OWN-0002,Acme Retail,CUSTOMER,1
+OWN-0003,RapidRoute Logistics,CARRIER,1
+OWN-0004,Central Returns Hub,WAREHOUSE,1
+OWN-0005,Orbit Pooling Services,POOL_OPERATOR,1

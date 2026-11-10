@@ -1,0 +1,6 @@
+anomaly_id,issue_type,entity,record_id,expected_decision,description
+GT-001,SIMULTANEOUS_LOCATIONS,CustodyEvent,CUST-ASSET-0000001-000006,QUARANTINE_ASSET,Two active location claims overlap for one asset.
+GT-002,RETURN_BEFORE_DISPATCH,ReturnAuthorization,RMA-2026-000810,REJECT_RETURN_AND_REVIEW,Received timestamp predates the asset dispatch event.
+GT-003,DUPLICATE_DEPOSIT_REFUND,DepositLedger,LED-00001810,REVERSE_DUPLICATE_AND_FLAG,Second refund for the same asset deposit.
+GT-004,REPAIR_WITHOUT_INSPECTION,Repair,REP-2026-000171,REOPEN_REPAIR_AND_REQUIRE_INSPECTION,Repair completion has no linked inspection.
+GT-005,MISSING_CUSTODY_ACTOR,CustodyEvent,CUST-ASSET-0000005-000006,HOLD_EVENT_FOR_REVIEW,Custody event lacks an accountable actor.

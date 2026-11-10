@@ -1,0 +1,19 @@
+{
+  "synthetic": true,
+  "seed": 20261022,
+  "generator": "generate.py",
+  "checksums_sha256": {
+    "AssetType.csv": "d6c06112d26f60559e92caefeb5df33ca92431df0bb1c94b0da3cca28c35badc",
+    "CustodyEvent.csv": "473043b1e9be4603e35c6e047e6b5035db7f1ddd596a2235f479fdb46ebe3dce",
+    "DepositLedger.csv": "ee3fb590a7b1fbde98e3bc4a29de53a80b3dad2190d18acf191cc1dcdfd9a155",
+    "Inspection.csv": "4e7c0e79ef096f1264dac25fa7f2dd038ab80a822e73c03472e15babaf9be2e6",
+    "Location.csv": "3776841018b04a0884991f60bb99d39e294ad3379dce31022d8bad70394d0578",
+    "Owner.csv": "3b70db050ce4616c2a6b0723f7ed5371fe9da4868cecd6059e2f2a408592d16c",
+    "Repair.csv": "0470d87a1b243fa0b9ada3c34602afc35560e68a36d2d8e879acb30d184cff1d",
+    "ReturnAuthorization.csv": "462a8dd4e05dabb16e0e4fce75123a3b372a827d15ba74bdbce248b8189595b3",
+    "ReusableAsset.csv": "e315298f1cf1fda3c1f47fe4a4d4a6915c7f81362dfc3eff2f5bc8bffaa7cdca",
+    "Shipment.csv": "08e634410c8c03091a1b125c201e4553ab45cab668c72574f16e3a776e49b6e5",
+    "ShipmentAsset.csv": "ac29baa27489ecdd6abf46a4b5980354242e299e7482e13e1449adf272d6fd84",
+    "ground_truth.csv": "0f33db634ea7330b685c2974a9c02da70e91dc92c36848bad62af0e767345ef2"
+  }
+}

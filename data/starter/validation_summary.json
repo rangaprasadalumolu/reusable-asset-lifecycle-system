@@ -1,0 +1,20 @@
+{
+  "metrics": {
+    "seed": 20261022,
+    "assets": 1000,
+    "shipments": 500,
+    "custody_events": 5003,
+    "returns": 810,
+    "inspections": 809,
+    "repairs": 171,
+    "ledger_entries": 1810,
+    "known_anomalies": 5,
+    "outstanding_assets": 122,
+    "potentially_lost_assets": 69
+  },
+  "checks": {
+    "primary_keys": "checked by deterministic IDs",
+    "foreign_keys": "master IDs generated before child rows; deliberate actor/inspection optional only in labelled anomaly records",
+    "reproducibility": "SHA-256 manifest emitted"
+  }
+}
