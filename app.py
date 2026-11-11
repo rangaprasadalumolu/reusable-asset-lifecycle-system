@@ -755,7 +755,7 @@ def receive_return(rma_id: str, data: ReturnReceive):
         connection.execute(
             """
             UPDATE ReusableAsset
-            SET current_status = 'AVAILABLE'
+            SET current_status = 'INSPECTION'
             WHERE asset_id = ?
             """,
             (asset_id,)
@@ -802,7 +802,7 @@ def receive_return(rma_id: str, data: ReturnReceive):
             "rma_id": rma_id,
             "asset_id": asset_id,
             "return_status": "RECEIVED",
-            "asset_status": "AVAILABLE",
+            "asset_status": "INSPECTION",
             "custody_event_id": custody_id,
             "received_at": received_at
         }
@@ -919,6 +919,19 @@ def create_inspection(data: InspectionCreate):
                 data.damage_cost,
                 data.notes
             )
+        )
+        # 7. Update asset status after inspection
+        status_after_inspection = (
+            "AVAILABLE" if data.result == "PASS" else "INSPECTION"
+        )
+
+        connection.execute(
+            """
+            UPDATE ReusableAsset
+            SET current_status = ?
+            WHERE asset_id = ?
+            """,
+            (status_after_inspection, rma["asset_id"])
         )
 
         return {
@@ -1044,6 +1057,15 @@ def create_repair(data: RepairCreate):
                 data.repair_center_location_id
             )
         )
+        # 7. Mark asset as under repair
+        connection.execute(
+            """
+            UPDATE ReusableAsset
+            SET current_status = 'REPAIR'
+            WHERE asset_id = ?
+            """,
+            (data.asset_id,)
+        )
 
         return {
             "message": "Repair opened successfully",
@@ -1129,7 +1151,28 @@ def close_repair(
             """,
             (closed_at, repair_id)
         )
+        # 7. Make the asset available after repair completion
+        active_repairs = connection.execute(
+            """
+            SELECT COUNT(*)
+            FROM Repair
+            WHERE asset_id = ?
+              AND repair_status IN ('OPEN', 'IN_PROGRESS')
+              AND repair_id <> ?
+            """,
+            (repair["asset_id"], repair_id)
+        ).fetchone()[0]
 
+        if active_repairs == 0:
+            connection.execute(
+                """
+                UPDATE ReusableAsset
+                SET current_status = 'AVAILABLE'
+                WHERE asset_id = ?
+                  AND current_status = 'REPAIR'
+                """,
+                (repair["asset_id"],)
+            )
         return {
             "message": "Repair completed successfully",
             "repair_id": repair_id,
