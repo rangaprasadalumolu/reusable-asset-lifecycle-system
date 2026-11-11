@@ -1168,8 +1168,16 @@ def create_deposit(data: DepositCreate):
             status_code=400,
             detail="Currency cannot be empty"
         )
+    if data.amount <= 0:
+        raise HTTPException(
+            status_code=400,
+            detail="Transaction amount must be greater than zero"
+        )
 
     with get_connection() as connection:
+                # Acquire a write lock before checking the deposit balance.
+        # This prevents concurrent refunds from using the same balance.
+        connection.execute("BEGIN IMMEDIATE")
 
         # 1. Verify asset
         asset = connection.execute(
@@ -1207,19 +1215,19 @@ def create_deposit(data: DepositCreate):
                     "Return authorization does not belong to this asset"
                 )
 
-        # 3. Refund-specific validation
+                # 3. Refund-specific validation
         if data.entry_type == "DEPOSIT_REFUND":
 
             if not data.rma_id:
                 raise HTTPException(
-                    400,
-                    "A return authorization is required for a refund"
+                    status_code=400,
+                    detail="A return authorization is required for a refund"
                 )
 
             if rma["return_status"] != "RECEIVED":
                 raise HTTPException(
-                    409,
-                    "Refund is allowed only after the asset is received"
+                    status_code=409,
+                    detail="Refund is allowed only after the asset is received"
                 )
 
             # Prevent duplicate refunds for the same return and amount
@@ -1243,11 +1251,11 @@ def create_deposit(data: DepositCreate):
 
             if duplicate:
                 raise HTTPException(
-                    409,
-                    f"Duplicate refund detected: {duplicate['ledger_entry_id']}"
+                    status_code=409,
+                    detail=f"Duplicate refund detected: {duplicate['ledger_entry_id']}"
                 )
 
-            # Calculate available refundable balance
+            # Calculate balance ONLY for this asset, RMA and currency
             balance = connection.execute(
                 """
                 SELECT
@@ -1255,24 +1263,42 @@ def create_deposit(data: DepositCreate):
                         SUM(
                             CASE
                                 WHEN entry_type = 'DEPOSIT_CHARGE'
-                                THEN amount
+                                    THEN amount
                                 WHEN entry_type = 'DEPOSIT_REFUND'
-                                THEN -amount
+                                    THEN -amount
                                 ELSE 0
                             END
                         ), 0
                     ) AS available_balance
                 FROM DepositLedger
                 WHERE asset_id = ?
+                  AND rma_id = ?
                   AND currency = ?
                 """,
-                (data.asset_id, data.currency)
+                (
+                    data.asset_id,
+                    data.rma_id,
+                    data.currency
+                )
             ).fetchone()["available_balance"]
+
+            if balance <= 0:
+                raise HTTPException(
+                    status_code=409,
+                    detail=(
+                        "No eligible RMA-linked deposit is available "
+                        "for this refund. Historical or unlinked deposits "
+                        "require manual reconciliation."
+                    )
+                )
 
             if data.amount > balance:
                 raise HTTPException(
-                    409,
-                    f"Refund exceeds available deposit balance: {balance}"
+                    status_code=409,
+                    detail=(
+                        f"Refund exceeds available RMA deposit balance: "
+                        f"{round(balance, 2)}"
+                    )
                 )
 
         # 4. Generate ledger ID
