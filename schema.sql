@@ -10,3 +10,24 @@ CREATE TABLE ReturnAuthorization(rma_id TEXT PRIMARY KEY, asset_id TEXT NOT NULL
 CREATE TABLE Inspection(inspection_id TEXT PRIMARY KEY, rma_id TEXT NOT NULL REFERENCES ReturnAuthorization, asset_id TEXT NOT NULL REFERENCES ReusableAsset, inspected_at TEXT NOT NULL, inspector_owner_id TEXT NOT NULL REFERENCES Owner, result TEXT NOT NULL, damage_cost REAL NOT NULL CHECK(damage_cost>=0), notes TEXT);
 CREATE TABLE Repair(repair_id TEXT PRIMARY KEY, asset_id TEXT NOT NULL REFERENCES ReusableAsset, inspection_id TEXT REFERENCES Inspection, opened_at TEXT NOT NULL, closed_at TEXT, repair_status TEXT NOT NULL, repair_cost REAL NOT NULL CHECK(repair_cost>=0), repair_center_location_id TEXT NOT NULL REFERENCES Location);
 CREATE TABLE DepositLedger(ledger_entry_id TEXT PRIMARY KEY, asset_id TEXT NOT NULL REFERENCES ReusableAsset, rma_id TEXT REFERENCES ReturnAuthorization, entry_type TEXT NOT NULL, amount REAL NOT NULL CHECK(amount>=0), currency TEXT NOT NULL, posted_at TEXT NOT NULL, reference TEXT NOT NULL);
+-- =====================================================
+-- PERFORMANCE INDEXES
+-- =====================================================
+
+CREATE INDEX IF NOT EXISTS idx_asset_status
+ON ReusableAsset(current_status);
+
+CREATE INDEX IF NOT EXISTS idx_custody_asset_event
+ON CustodyEvent(asset_id, event_at, custody_event_id);
+
+CREATE INDEX IF NOT EXISTS idx_return_asset_status
+ON ReturnAuthorization(asset_id, return_status);
+
+CREATE INDEX IF NOT EXISTS idx_inspection_rma
+ON Inspection(rma_id);
+
+CREATE INDEX IF NOT EXISTS idx_repair_asset_status
+ON Repair(asset_id, repair_status);
+
+CREATE INDEX IF NOT EXISTS idx_deposit_asset_rma_currency
+ON DepositLedger(asset_id, rma_id, currency);
